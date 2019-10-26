@@ -4,7 +4,7 @@ from . import main
 @main.route('/')
 def index():
     '''
-    View root page function that returns the index page and it's data
+    View function that returns the index page and it's data
     '''
     title = "Brian's Blog"
     intro = "Welcome to My Developer Journey"
@@ -14,8 +14,13 @@ def index():
 @main.route('/about')
 def about():
     '''
-    View about page function that returns the about page
+    View function that returns the about page
     '''
     return render_template('about.html')
 
-    
+@main.route('/contact')
+def contact():
+    '''
+    View function that returns the contact page
+    '''
+    return render_template('contact.html')
