@@ -17,6 +17,23 @@ def index():
 
     return render_template('index.html', title = title, intro = intro, blogpost = blogpost)
 
+@main.route('/blogposts/new', methods = ['GET', 'POST'])
+@login_required
+def new_blogpost():
+    form = BlogPostForm()
+    if form.validate_on_submit():
+        description = form.description.data
+        title = form.title.data
+        owner_id = current_user
+        date = date.now
+        new_blogpost = BlogPost(owner_id = current_user._get_current_object().id, title = title, description = description)
+        db.session.add(new_blogpost)
+        db.session.commit()
+
+        return redirect(url_for('main.index'))
+
+    return render_template('blogposts.html', form = form)
+
 @main.route('/about')
 def about():
     '''
