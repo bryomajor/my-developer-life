@@ -1,5 +1,10 @@
-from flask import render_template
+from flask import render_template, request, redirect, url_for, abort, flash
 from . import main
+from flask_login import login_required, current_user
+from ..models import BlogPost, User, Comment
+from .forms import BlogPostForm, CommentForm
+from flask.views import View, MethodView
+from .. import db
 
 @main.route('/')
 def index():
@@ -8,8 +13,9 @@ def index():
     '''
     title = "Brian's Blog"
     intro = "Welcome to My Developer Journey"
+    blogpost = BlogPost.query.filter_by().first()
 
-    return render_template('index.html', title = title, intro = intro)
+    return render_template('index.html', title = title, intro = intro, blogpost = blogpost)
 
 @main.route('/about')
 def about():
