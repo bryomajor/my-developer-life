@@ -1,5 +1,8 @@
 from flask import Flask
 from config import config_options
+from flask_fontawesome import FontAwesome
+
+fa = FontAwesome()
 
 def create_app(config_name):
     '''
@@ -14,6 +17,9 @@ def create_app(config_name):
 
     # Creating the app configurations
     app.config.from_object(config_options[config_name])
+
+    # Initialize flask extensions
+    fa.init_app(app)
 
     # Registering the main blueprint
     from .main import main as main_blueprint
