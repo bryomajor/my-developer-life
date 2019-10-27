@@ -1,0 +1,13 @@
+{% macro displayComment(comment) %}
+<div class="row mt">
+    {% if comment %}
+        {% for new_comment in comment %}
+        <div class="col-md-12">
+            <h4>{{ new_comment.user.username }}</h4>
+            <p>{{ new_comment.description }}</p>
+        </div>
+        {% endfor %}
+    {% else %}
+    {% endif %}
+</div>
+{% endmacro %}
