@@ -41,6 +41,7 @@ class BlogPost(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable = False)
     description = db.Column(db.String(), index = True)
     title = db.Column(db.String())
+    date_posted = db.Column(db.DateTime)
     comments = db.relationship('Comment', backref='blogpost', lazy = 'dynamic')
     
     @classmethod
