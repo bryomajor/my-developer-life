@@ -6,6 +6,7 @@ class Config:
     '''
     SECRET_KEY = 'uncrackablesecretkey'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    UPLOADED_PHOTOS_DEST ='app/static/photos'
     
 
 class ProdConfig(Config):
