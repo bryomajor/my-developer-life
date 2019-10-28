@@ -1,4 +1,4 @@
-from app import create_app
+from app import create_app, db
 from flask_script import Manager, Server
 from app.models import *
 from flask_migrate import Migrate, MigrateCommand
@@ -10,12 +10,13 @@ app = create_app('development')
 manager = Manager(app)
 
 # Migrate instance
-migrate = Migrate(app, db)
+
 
 manager.add_command('server', Server)
+migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 
-@manager.add_command
+@manager.command
 def test():
     '''
     Run unit tests
