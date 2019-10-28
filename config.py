@@ -4,7 +4,8 @@ class Config:
     '''
     General configuration parent class
     '''
-    pass
+    SECRET_KEY = 'uncrackablesecretkey'
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
     
 
 class ProdConfig(Config):
@@ -14,7 +15,7 @@ class ProdConfig(Config):
     Args:
         Config: The parent configuration class with general configuration settings
     '''
-    pass
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
 
 
 class TestConfig(Config):
@@ -34,6 +35,7 @@ class DevConfig(Config):
     Args:
         Config: The parent configuration class with general configuration settings
     '''
+    SQLALCHEMY_DATABASE_URI = 'postgresql+psycopg2://moringa:p@$$w0rd@localhost/myblog'
     DEBUG = True
 
 config_options = {
