@@ -43,16 +43,58 @@
     </div>
     <div class="col-md-3">
       <h4>All Comments</h4>
-      {% for comment in comments %}
-      <p class="mt-10"><span style="font-weight: bold">{{comment.user.username}}</span>{{comment.comment}}
-        {% endfor %}
-      </p>
+      <p class="mt-5">{{ comments }}</p>
     </div>
   </div>
   <hr>
 </div>
-<div class="col-md1"></div>
+<div class="col-md"></div>
 </div>
+</div>
+<div class="modal fade" id="modalConfirmDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-notify modal-danger" role="document">
+    <div class="modal-content text-center">
+      <div class="modal-header d-flex justify-content-center">
+        <p class="heading">Are you sure?</p>
+      </div>
+      <div class="modal-body">
+        <i class="fas fa-times fa-4x animated rotateIn"></i>
+      </div>
+      <div class="modal-footer flex-center">
+        <form action="{{url_for('main.del_post',blog_id=blog.id)}}" method="POST">
+          <input type="submit" class="btn  btn-outline-danger btn-sm" value="Yes">
+        </form>
+        <a type="button" class="btn btn-sm btn-danger waves-effect" data-dismiss="modal">No</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalComment" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-notify modal-info" role="document">
+    <div class="modal-content text-center">
+      <div class="modal-header d-flex justify-content-center">
+        <p class="heading">Leave A Comment</p>
+      </div>
+      <div class="modal-body">
+        <form class="form" action="{{url_for('main.comment',blog_id = blog.id)}}" method="POST">
+          <div class="form-group green-border-focus">
+            <label></label>
+            <textarea class="form-control" placeholder="Type your comment..." rows="2" name="newcomment"
+              required></textarea>
+          </div>
+          <div class="modal-footer flex-center">
+            <button class="btn btn-sm btn-outline-success">Comment</button>
+            <a type="button" class="btn btn-outline-danger btn-sm " data-dismiss="modal">Exit</a>
+          </div>
+        </form>
+      </div>
+
+
+    </div>
+  </div>
 </div>
 {% block footer %}
 {% include 'footer.html' %}
