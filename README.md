@@ -59,7 +59,7 @@ Click on `Comment` | Pop up where one can comment appears | Comments are display
         export MAIL_PASSWORD=<your-email-password>
         export SECRET_KEY=<your-secret-key>
 
-* Edit the configuration instance in `manage.py` by commenting on `production` instance and uncommenting `development` instance
+* Edit the configuration instance in `manage.py` from `development` to `production`
 * To run the application, in your terminal:
 
         $ chmod a+x start.sh
