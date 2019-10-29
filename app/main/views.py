@@ -11,6 +11,7 @@ import secrets
 import os
 from PIL import Image
 from ..email import mail_message
+import requests
 
 @main.route('/', methods = ['GET', 'POST'])
 def index():
@@ -18,10 +19,11 @@ def index():
     View function that returns the index page and it's data
     '''
     intro = "Welcome to My Developer Journey"
+    quotes = requests.get("http://quotes.stormconsultancy.co.uk/random.json").json()
     # quotes = get_quotes()
     page = request.args.get('page',1,type =int)
     blogs = Blog.query.order_by(Blog.posted.desc()).paginate(page = page,per_page = 3)
-    return render_template('index.html', blogs=blogs)
+    return render_template('index.html', blogs=blogs, quotes = quotes)
 
 # @main.route('/blogposts/new', methods = ['GET', 'POST'])
 # @login_required
