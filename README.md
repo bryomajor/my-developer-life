@@ -31,7 +31,7 @@ As a user of the web application you will be able to:
 | View blog posts  | Click on comment | Taken to the clicked post | 
 Click on `Comment` | Pop up where one can comment appears | Comments are displayed |
 |  Click on `Sign In` | Sign in if one has an account | Sign in form displayed |
-|  Click on `Sign In` | Sign up if one has no account | Sign up form displayed |
+|  Click on `Sign Up` | Sign up if one has no account | Sign up form displayed |
 | Click on profile | Redirects to the profile page | User adds bio and profile picture |
 
 
