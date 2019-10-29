@@ -32,18 +32,34 @@
         </a>
         <p class="post-meta">Posted by {{ blog.user.username }}
           on {{ blog.posted.strftime('%d-%m-%Y') }}</p>
-          <p class="post-meta"> <a class="btn btn-sm btn-warning" href="{{url_for('main.blog',id=blog.id)}}" >Comment</a>  {{blog.comment.count()}} Comments</p>
+        <p class="post-meta"> <a class="btn btn-sm btn-warning" href="{{url_for('main.blog',id=blog.id)}}">Comment</a>
+          {{blog.comment.count()}} Comments</p>
         {% endfor %}
       </div>
       <hr>
     </div>
   </div>
-</div>
-<div class="blockquote jumbotron">
-    <h4 class="text-center">{{ quotes['quote']}}</h4>
+  <div class="blockquote jumbotron">
+    <h4 class="text-center">{{ quotes['author']}}</h4>
+    <p class="text-center">{{ quotes['quote']}}</p>
+  </div>
+  <div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+      <form class="form-inline" action="{{url_for('main.subscribe')}}" method="POST">
+        <div class="md-form form-group">
+          <input type="email" class="form-control " name="subscriber" placeholder="Input email to subscribe" required>
+        </div>
+        <div class="md-form form-group">
+          <button class="btn btn-sm btn-warning ml-2" id="subscr">Subscribe</button>
+        </div>
+      </form>
+    </div>
+    <div class="col-md-3"></div>
+  </div>
 </div>
 {% block footer %}
-    {% include 'footer.html' %}
+{% include 'footer.html' %}
 {% endblock %}
 
 {% endblock %}
