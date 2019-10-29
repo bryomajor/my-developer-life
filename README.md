@@ -2,7 +2,7 @@
 
 
 ## Description
-A personal blog. You can visit the live site on `https://last-pitch.herokuapp.com/`
+A personal blog. You can visit the live site on `https://my-developer-life.herokuapp.com/`
 
 
 ## Author
