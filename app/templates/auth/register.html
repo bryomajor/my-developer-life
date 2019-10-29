@@ -1,7 +1,24 @@
 {% extends 'base.html' %}
 {% import 'bootstrap/wtf.html' as wtf %}
 
+{% block header %}
+{% include 'header.html' %}
+{% endblock %}
+
 {% block content %}
+<!-- Page Header -->
+<header class="masthead" style="background-image: url('{{ url_for('static', filename='img/home-bg.jpg') }}')">
+    <div class="overlay"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+                <div class="site-heading">
+                    <h1>Sign Up</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
 <div class="container">
     <div class="row" style="margin-top: 5%">
         <div class="col-md-3"></div>
@@ -11,4 +28,8 @@
         <div class="col-md-3"></div>
     </div>
 </div>
+{% block footer %}
+    {% include 'footer.html' %}
+{% endblock %}
+
 {% endblock %}

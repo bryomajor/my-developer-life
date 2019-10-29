@@ -1,18 +1,18 @@
 from argparse import ArgumentParser
-from .util.compat import SafeConfigParser
 import inspect
 import os
 import sys
 
 from . import command
-from . import util
 from . import package_dir
+from . import util
 from .util import compat
+from .util.compat import SafeConfigParser
 
 
 class Config(object):
 
-    """Represent an Alembic configuration.
+    r"""Represent an Alembic configuration.
 
     Within an ``env.py`` script, this is available
     via the :attr:`.EnvironmentContext.config` attribute,
@@ -40,7 +40,7 @@ class Config(object):
         from alembic.config import Config
         alembic_cfg = Config()
         alembic_cfg.set_main_option("script_location", "myapp:migrations")
-        alembic_cfg.set_main_option("url", "postgresql://foo/bar")
+        alembic_cfg.set_main_option("sqlalchemy.url", "postgresql://foo/bar")
         alembic_cfg.set_section_option("mysection", "foo", "bar")
 
     .. warning::
@@ -58,7 +58,7 @@ class Config(object):
             alembic_cfg.attributes['connection'] = connection
             command.upgrade(alembic_cfg, "head")
 
-    :param file_: name of the .ini file to open.
+    :param file\_: name of the .ini file to open.
     :param ini_section: name of the main Alembic section within the
      .ini file
     :param output_buffer: optional file-like input buffer which
@@ -90,9 +90,16 @@ class Config(object):
 
     """
 
-    def __init__(self, file_=None, ini_section='alembic', output_buffer=None,
-                 stdout=sys.stdout, cmd_opts=None,
-                 config_args=util.immutabledict(), attributes=None):
+    def __init__(
+        self,
+        file_=None,
+        ini_section="alembic",
+        output_buffer=None,
+        stdout=sys.stdout,
+        cmd_opts=None,
+        config_args=util.immutabledict(),
+        attributes=None,
+    ):
         """Construct a new :class:`.Config`
 
         """
@@ -153,13 +160,25 @@ class Config(object):
         return {}
 
     def print_stdout(self, text, *arg):
-        """Render a message to standard out."""
+        """Render a message to standard out.
 
-        util.write_outstream(
-            self.stdout,
-            (compat.text_type(text) % arg),
-            "\n"
-        )
+        When :meth:`.Config.print_stdout` is called with additional args
+        those arguments will formatted against the provided text,
+        otherwise we simply output the provided text verbatim.
+
+        e.g.::
+
+            >>> config.print_stdout('Some text %s', 'arg')
+            Some Text arg
+
+        """
+
+        if arg:
+            output = compat.text_type(text) % arg
+        else:
+            output = compat.text_type(text)
+
+        util.write_outstream(self.stdout, output, "\n")
 
     @util.memoized_property
     def file_config(self):
@@ -176,7 +195,7 @@ class Config(object):
             here = os.path.abspath(os.path.dirname(self.config_file_name))
         else:
             here = ""
-        self.config_args['here'] = here
+        self.config_args["here"] = here
         file_config = SafeConfigParser(self.config_args)
         if self.config_file_name:
             file_config.read([self.config_file_name])
@@ -191,13 +210,16 @@ class Config(object):
         commands.
 
         """
-        return os.path.join(package_dir, 'templates')
+        return os.path.join(package_dir, "templates")
 
-    def get_section(self, name):
+    def get_section(self, name, default=None):
         """Return all the configuration options from a given .ini file section
         as a dictionary.
 
         """
+        if not self.file_config.has_section(name):
+            return default
+
         return dict(self.file_config.items(name))
 
     def set_main_option(self, name, value):
@@ -249,9 +271,10 @@ class Config(object):
 
         """
         if not self.file_config.has_section(section):
-            raise util.CommandError("No config file %r found, or file has no "
-                                    "'[%s]' section" %
-                                    (self.config_file_name, section))
+            raise util.CommandError(
+                "No config file %r found, or file has no "
+                "'[%s]' section" % (self.config_file_name, section)
+            )
         if self.file_config.has_option(section, name):
             return self.file_config.get(section, name)
         else:
@@ -269,139 +292,160 @@ class Config(object):
 
 
 class CommandLine(object):
-
     def __init__(self, prog=None):
         self._generate_args(prog)
 
     def _generate_args(self, prog):
-        def add_options(parser, positional, kwargs):
+        def add_options(fn, parser, positional, kwargs):
             kwargs_opts = {
-                'template': (
-                    "-t", "--template",
+                "template": (
+                    "-t",
+                    "--template",
                     dict(
-                        default='generic',
+                        default="generic",
                         type=str,
-                        help="Setup template for use with 'init'"
-                    )
+                        help="Setup template for use with 'init'",
+                    ),
                 ),
-                'message': (
-                    "-m", "--message",
+                "message": (
+                    "-m",
+                    "--message",
                     dict(
-                        type=str,
-                        help="Message string to use with 'revision'")
+                        type=str, help="Message string to use with 'revision'"
+                    ),
                 ),
-                'sql': (
+                "sql": (
                     "--sql",
                     dict(
                         action="store_true",
                         help="Don't emit SQL to database - dump to "
-                        "standard output/file instead"
-                    )
+                        "standard output/file instead. See docs on "
+                        "offline mode.",
+                    ),
                 ),
-                'tag': (
+                "tag": (
                     "--tag",
                     dict(
                         type=str,
                         help="Arbitrary 'tag' name - can be used by "
-                        "custom env.py scripts.")
+                        "custom env.py scripts.",
+                    ),
                 ),
-                'head': (
+                "head": (
                     "--head",
                     dict(
                         type=str,
                         help="Specify head revision or <branchname>@head "
-                        "to base new revision on."
-                    )
+                        "to base new revision on.",
+                    ),
                 ),
-                'splice': (
+                "splice": (
                     "--splice",
                     dict(
                         action="store_true",
                         help="Allow a non-head revision as the "
-                        "'head' to splice onto"
-                    )
+                        "'head' to splice onto",
+                    ),
                 ),
-                'depends_on': (
+                "depends_on": (
                     "--depends-on",
                     dict(
                         action="append",
                         help="Specify one or more revision identifiers "
-                        "which this revision should depend on."
-                    )
+                        "which this revision should depend on.",
+                    ),
                 ),
-                'rev_id': (
+                "rev_id": (
                     "--rev-id",
                     dict(
                         type=str,
                         help="Specify a hardcoded revision id instead of "
-                        "generating one"
-                    )
+                        "generating one",
+                    ),
                 ),
-                'version_path': (
+                "version_path": (
                     "--version-path",
                     dict(
                         type=str,
                         help="Specify specific path from config for "
-                        "version file"
-                    )
+                        "version file",
+                    ),
                 ),
-                'branch_label': (
+                "branch_label": (
                     "--branch-label",
                     dict(
                         type=str,
                         help="Specify a branch label to apply to the "
-                        "new revision"
-                    )
+                        "new revision",
+                    ),
                 ),
-                'verbose': (
-                    "-v", "--verbose",
+                "verbose": (
+                    "-v",
+                    "--verbose",
+                    dict(action="store_true", help="Use more verbose output"),
+                ),
+                "resolve_dependencies": (
+                    "--resolve-dependencies",
                     dict(
                         action="store_true",
-                        help="Use more verbose output"
-                    )
+                        help="Treat dependency versions as down revisions",
+                    ),
                 ),
-                'resolve_dependencies': (
-                    '--resolve-dependencies',
-                    dict(
-                        action="store_true",
-                        help="Treat dependency versions as down revisions"
-                    )
-                ),
-                'autogenerate': (
+                "autogenerate": (
                     "--autogenerate",
                     dict(
                         action="store_true",
                         help="Populate revision script with candidate "
                         "migration operations, based on comparison "
-                        "of database to model.")
+                        "of database to model.",
+                    ),
                 ),
-                'head_only': (
+                "head_only": (
                     "--head-only",
                     dict(
                         action="store_true",
                         help="Deprecated.  Use --verbose for "
-                        "additional output")
+                        "additional output",
+                    ),
                 ),
-                'rev_range': (
-                    "-r", "--rev-range",
+                "rev_range": (
+                    "-r",
+                    "--rev-range",
                     dict(
                         action="store",
                         help="Specify a revision range; "
-                        "format is [start]:[end]")
+                        "format is [start]:[end]",
+                    ),
                 ),
-                'indicate_current': (
-                    "-i", "--indicate-current",
+                "indicate_current": (
+                    "-i",
+                    "--indicate-current",
                     dict(
                         action="store_true",
-                        help="Indicate the current revision"
-                    )
-                )
+                        help="Indicate the current revision",
+                    ),
+                ),
+                "purge": (
+                    "--purge",
+                    dict(
+                        action="store_true",
+                        help="Unconditionally erase the version table "
+                        "before stamping",
+                    ),
+                ),
+                "package": (
+                    "--package",
+                    dict(
+                        action="store_true",
+                        help="Write empty __init__.py files to the "
+                        "environment and version locations",
+                    ),
+                ),
             }
             positional_help = {
-                'directory': "location of scripts directory",
-                'revision': "revision identifier",
-                'revisions': "one or more revisions, or 'heads' for all heads"
-
+                "directory": "location of scripts directory",
+                "revision": "revision identifier",
+                "revisions": "one or more revisions, or 'heads' for all heads",
             }
             for arg in kwargs:
                 if arg in kwargs_opts:
@@ -410,47 +454,86 @@ class CommandLine(object):
                     parser.add_argument(*args, **kw)
 
             for arg in positional:
-                if arg == "revisions":
+                if (
+                    arg == "revisions"
+                    or fn in positional_translations
+                    and positional_translations[fn][arg] == "revisions"
+                ):
                     subparser.add_argument(
-                        arg, nargs='+', help=positional_help.get(arg))
+                        "revisions",
+                        nargs="+",
+                        help=positional_help.get("revisions"),
+                    )
                 else:
                     subparser.add_argument(arg, help=positional_help.get(arg))
 
         parser = ArgumentParser(prog=prog)
-        parser.add_argument("-c", "--config",
-                            type=str,
-                            default="alembic.ini",
-                            help="Alternate config file")
-        parser.add_argument("-n", "--name",
-                            type=str,
-                            default="alembic",
-                            help="Name of section in .ini file to "
-                                    "use for Alembic config")
-        parser.add_argument("-x", action="append",
-                            help="Additional arguments consumed by "
-                            "custom env.py scripts, e.g. -x "
-                            "setting1=somesetting -x setting2=somesetting")
-        parser.add_argument("--raiseerr", action="store_true",
-                            help="Raise a full stack trace on error")
+        parser.add_argument(
+            "-c",
+            "--config",
+            type=str,
+            default="alembic.ini",
+            help="Alternate config file",
+        )
+        parser.add_argument(
+            "-n",
+            "--name",
+            type=str,
+            default="alembic",
+            help="Name of section in .ini file to " "use for Alembic config",
+        )
+        parser.add_argument(
+            "-x",
+            action="append",
+            help="Additional arguments consumed by "
+            "custom env.py scripts, e.g. -x "
+            "setting1=somesetting -x setting2=somesetting",
+        )
+        parser.add_argument(
+            "--raiseerr",
+            action="store_true",
+            help="Raise a full stack trace on error",
+        )
         subparsers = parser.add_subparsers()
 
+        positional_translations = {command.stamp: {"revision": "revisions"}}
+
         for fn in [getattr(command, n) for n in dir(command)]:
-            if inspect.isfunction(fn) and \
-                    fn.__name__[0] != '_' and \
-                    fn.__module__ == 'alembic.command':
+            if (
+                inspect.isfunction(fn)
+                and fn.__name__[0] != "_"
+                and fn.__module__ == "alembic.command"
+            ):
 
                 spec = compat.inspect_getargspec(fn)
                 if spec[3]:
-                    positional = spec[0][1:-len(spec[3])]
-                    kwarg = spec[0][-len(spec[3]):]
+                    positional = spec[0][1 : -len(spec[3])]
+                    kwarg = spec[0][-len(spec[3]) :]
                 else:
                     positional = spec[0][1:]
                     kwarg = []
 
+                if fn in positional_translations:
+                    positional = [
+                        positional_translations[fn].get(name, name)
+                        for name in positional
+                    ]
+
+                # parse first line(s) of helptext without a line break
+                help_ = fn.__doc__
+                if help_:
+                    help_text = []
+                    for line in help_.split("\n"):
+                        if not line.strip():
+                            break
+                        else:
+                            help_text.append(line.strip())
+                else:
+                    help_text = ""
                 subparser = subparsers.add_parser(
-                    fn.__name__,
-                    help=fn.__doc__)
-                add_options(subparser, positional, kwarg)
+                    fn.__name__, help=" ".join(help_text)
+                )
+                add_options(fn, subparser, positional, kwarg)
                 subparser.set_defaults(cmd=(fn, positional, kwarg))
         self.parser = parser
 
@@ -458,10 +541,11 @@ class CommandLine(object):
         fn, positional, kwarg = options.cmd
 
         try:
-            fn(config,
-               *[getattr(options, k, None) for k in positional],
-               **dict((k, getattr(options, k, None)) for k in kwarg)
-               )
+            fn(
+                config,
+                *[getattr(options, k, None) for k in positional],
+                **dict((k, getattr(options, k, None)) for k in kwarg)
+            )
         except util.CommandError as e:
             if options.raiseerr:
                 raise
@@ -475,8 +559,11 @@ class CommandLine(object):
             # behavior changed incompatibly in py3.3
             self.parser.error("too few arguments")
         else:
-            cfg = Config(file_=options.config,
-                         ini_section=options.name, cmd_opts=options)
+            cfg = Config(
+                file_=options.config,
+                ini_section=options.name,
+                cmd_opts=options,
+            )
             self.run_cmd(cfg, options)
 
 
@@ -485,5 +572,6 @@ def main(argv=None, prog=None, **kwargs):
 
     CommandLine(prog=prog).main(argv=argv)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -1,12 +1,13 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField,FileAllowed
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import Required, Email, EqualTo
 from wtforms import ValidationError
 
-class BlogPostForm(FlaskForm):
-    title = StringField('Title', validators = [Required()])
-    description = TextAreaField("Enter Blog Content", validators = [Required()])
-    submit = SubmitField('Submit')
+class CreateBlog(FlaskForm):
+    title = StringField('Title',validators=[Required()])
+    content = TextAreaField('Blog content',validators=[Required()])
+    submit = SubmitField('Post')
 
 
 class CommentForm(FlaskForm):
