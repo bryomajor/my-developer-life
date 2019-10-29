@@ -58,7 +58,7 @@ def new_comment(blog_id):
 
     all_comments = Comment.query.filter_by(blog_id = blog_id).all()
 
-    return render_template('comments.html', form = form, comment = all_comments, blogpost = blogpost)
+    return render_template('blog.html', form = form, comments = all_comments, blogpost = blogpost)
 
 @main.route('/about')
 def about():
@@ -160,7 +160,7 @@ def updateblog(blog_id):
 def comment(blog_id):
     blog = Blog.query.get(blog_id)
     comment = request.form.get('newcomment')
-    new_comment = Comment(comment = comment, user_id = current_user._get_current_object().id, blog_id=blog_id)
+    new_comment = Comment(comment = comment, blog_id=blog_id)
     new_comment.save_comment()
     return redirect(url_for('main.blog',id= blog.id))
 
